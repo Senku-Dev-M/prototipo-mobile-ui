@@ -386,7 +386,7 @@
                             </div>
                         </div>
                         <div class="text-center pt-4">
-                            <button class="text-sm font-medium text-gray-500 hover:text-red-600"><i class="fa-solid fa-flag mr-2"></i>Reportar Servicio</button>
+                            <button class="text-sm font-medium text-gray-500 hover:text-red-600" onclick="showReportModal(true)"><i class="fa-solid fa-flag mr-2"></i>Reportar Servicio</button>
                         </div>
                     </div>
                 </div>
@@ -439,7 +439,10 @@
                             <div class="flex-grow">
                                 <p class="font-semibold">Solicitud de Carlos Ruiz</p>
                                 <p class="text-sm text-gray-500">Servicio: Ayuda con Jardinería</p>
-                                <div class="flex mt-2 space-x-2"><button class="btn-secondary flex-1 text-sm py-1">Rechazar</button><button class="btn-primary flex-1 text-sm py-1">Aceptar</button></div>
+                                <div class="flex mt-2 space-x-2">
+                                    <button class="btn-secondary flex-1 text-sm py-1" onclick="showDeclineModal(true)">Rechazar</button>
+                                    <button class="btn-primary flex-1 text-sm py-1" onclick="showAcceptModal(true)">Aceptar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -702,6 +705,55 @@
             </div>
         </div>
 
+        <!-- Modal de Reporte -->
+        <div id="report-modal" class="modal-overlay">
+            <div class="modal-content">
+                <i class="fa-solid fa-flag text-4xl text-red-500 mb-4"></i>
+                <h2 class="text-lg font-bold mb-2">Reportar Servicio</h2>
+                <p class="text-gray-600 text-sm mb-4">Por favor, describe el problema que encontraste con este servicio.</p>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <label class="font-semibold text-sm mb-1 block">Fecha del Reporte</label>
+                        <input type="text" id="report-date" class="form-input w-full bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-sm mb-1 block">Descripción</label>
+                        <textarea class="form-input w-full" rows="4" placeholder="Explica el motivo del reporte..."></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button class="btn-secondary flex-1" onclick="showReportModal(false)">Cancelar</button>
+                    <button class="btn-danger flex-1" onclick="submitReport()">Enviar Reporte</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Aceptar Solicitud -->
+        <div id="accept-modal" class="modal-overlay">
+            <div class="modal-content">
+                <i class="fa-solid fa-handshake text-4xl text-teal-500 mb-4"></i>
+                <h2 class="text-lg font-bold mb-2">Aceptar Solicitud</h2>
+                <p class="text-gray-600 text-sm mb-4">Al aceptar, te comprometes a realizar el servicio. Se abrirá un chat para coordinar los detalles.</p>
+                <div class="flex gap-3">
+                    <button class="btn-secondary flex-1" onclick="showAcceptModal(false)">Cancelar</button>
+                    <button class="btn-primary flex-1" onclick="confirmAcceptRequest()">Sí, Aceptar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Rechazar Solicitud -->
+        <div id="decline-modal" class="modal-overlay">
+            <div class="modal-content">
+                <i class="fa-solid fa-times-circle text-4xl text-red-500 mb-4"></i>
+                <h2 class="text-lg font-bold mb-2">Rechazar Solicitud</h2>
+                <p class="text-gray-600 text-sm mb-4">¿Estás seguro de que quieres rechazar esta solicitud? Esta acción es permanente.</p>
+                <div class="flex gap-3">
+                    <button class="btn-secondary flex-1" onclick="showDeclineModal(false)">Cancelar</button>
+                    <button class="btn-danger flex-1" onclick="confirmDeclineRequest()">Sí, Rechazar</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -710,6 +762,9 @@
         const confirmationModal = document.getElementById('confirmation-modal');
         const ratingModal = document.getElementById('rating-modal');
         const cancelModal = document.getElementById('cancel-modal');
+        const reportModal = document.getElementById('report-modal');
+        const acceptModal = document.getElementById('accept-modal');
+        const declineModal = document.getElementById('decline-modal');
         
         function showConfirmationModal(show) {
             if (show) { confirmationModal.classList.add('active'); } 
@@ -725,6 +780,28 @@
             if (show) { cancelModal.classList.add('active'); }
             else { cancelModal.classList.remove('active'); }
         }
+
+        function showReportModal(show) {
+            if (show) {
+                const dateField = document.getElementById('report-date');
+                if(dateField) {
+                   dateField.value = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+                reportModal.classList.add('active');
+            } else {
+                reportModal.classList.remove('active');
+            }
+        }
+
+        function showAcceptModal(show) {
+            if (show) { acceptModal.classList.add('active'); } 
+            else { acceptModal.classList.remove('active'); }
+        }
+
+        function showDeclineModal(show) {
+            if (show) { declineModal.classList.add('active'); }
+            else { declineModal.classList.remove('active'); }
+        }
         
         function submitRating() {
             showRatingModal(false);
@@ -738,8 +815,23 @@
         
         function confirmCancelRequest() {
             showCancelModal(false);
-            // Aquí iría la lógica para cancelar la solicitud
-            // Por ahora, solo cerramos el modal
+            // Lógica para cancelar la solicitud
+        }
+
+        function submitReport() {
+            showReportModal(false);
+            // Lógica para enviar el reporte
+        }
+
+        function confirmAcceptRequest() {
+            showAcceptModal(false);
+            // Lógica para aceptar la solicitud y quizás ir al chat
+            showMobileScreen('screen-chat', 'messages');
+        }
+
+        function confirmDeclineRequest() {
+            showDeclineModal(false);
+            // Lógica para rechazar la solicitud
         }
 
         function showMobileScreen(screenId, tabId) {
